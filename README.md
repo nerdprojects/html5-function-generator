@@ -2,6 +2,8 @@
 
 Instead of using a real (electronic test equipment) function generator, I created this HTML5 based one for the browser.
 
+<img src="https://raw.githubusercontent.com/nerdprojects/html5-function-generator/main/screenshot.png">
+
 It sends sine, square, sawtooth and triangle waveforms to the audio output of the computer. There are two generators, one goes to the left and the other goes to the right channel.
 
 By attaching a stereo cable to the headphone jack or using audio routing software, the signal can be used as input for any application.
