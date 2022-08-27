@@ -1,0 +1,350 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+<link href="./css/jquery.nouislider.css" rel="stylesheet">
+<link href="./css/jquery.nouislider.pips.css" rel="stylesheet">
+<link href="./css/function-generator.css" rel="stylesheet">
+
+<script type="text/javascript" src="./js/jquery-2.1.1.min.js"></script>
+<script type="text/javascript" src="./js/jquery.nouislider.full.min.js"></script>
+<script type="text/javascript">
+$(function(){
+
+  running = false;
+
+  context = new AudioContext();
+
+  // create nodes
+  gainL = context.createGain();
+  gainR = context.createGain();
+
+  oscillatorL = context.createOscillator();
+  oscillatorR = context.createOscillator();
+
+  mergerNode = context.createChannelMerger(2);
+
+  // setup gains
+  gainL.gain.value = 0.5;
+  gainR.gain.value = 0.5;
+
+  //setup oscillators
+  oscillatorL.frequency.value = 440;
+  oscillatorR.frequency.value = 440;
+
+  // connect nodes
+  oscillatorL.connect(gainL);
+  oscillatorR.connect(gainR);
+
+  gainL.connect(mergerNode, 0, 0);
+  gainR.connect(mergerNode, 0, 1);
+
+  mergerNode.connect(context.destination);
+  
+  // run
+  oscillatorL.start(context.currentTime);
+  oscillatorR.start(context.currentTime);
+
+  // setup start stop buttons
+  $('#startL').on('click', function(){
+    if(!running) {
+      oscillatorR.disconnect(gainR);
+      context.resume();
+      running = true;
+    }
+    oscillatorL.connect(gainL);
+  });
+  $('#startR').on('click', function(){
+    if(!running) {
+      context.resume();
+      running = true;
+      oscillatorL.disconnect(gainL);
+    }
+    oscillatorR.connect(gainR);
+  });
+  $('#stopL').on('click', function(){
+    oscillatorL.disconnect(gainL);
+  });
+  $('#stopR').on('click', function(){
+    oscillatorR.disconnect(gainR);
+  });
+
+
+  //setup input controls L
+  $('#gainLSlider').noUiSlider({
+    start: gainL.gain.value,
+    connect: "lower",
+    direction: 'rtl',
+    orientation: "vertical",
+    range: {
+      'min': 0,
+      'max': 1
+    },
+    format: wNumb({
+      mark: '.',
+      decimals: 2
+    })
+  });
+  $('#gainLSlider').noUiSlider_pips({
+	  mode: 'steps',
+	  density: 3
+  });
+  $('#gainLSlider').on('slide', function(){
+    console.log($("#gainLSlider").val());
+    gainL.gain.value = $("#gainLSlider").val();
+  });
+  $("#gainLValue").change(function(event){
+    console.log($(event.target).val());
+    $('#gainLSlider').val($(event.target).val());
+    gainL.gain.value = $(event.target).val();
+  });
+  $("#gainLSlider").Link('lower').to($('#gainLValue'));
+
+  $('#frequencyLSlider').noUiSlider({
+    start: oscillatorL.frequency.value,
+    connect: false,
+    direction: 'rtl',
+    orientation: "vertical",
+    range: {
+		  'min': [0],
+		  '30%': [1000],
+		  '70%': [5000],
+		  'max': [20000]
+	  },
+    format: wNumb({
+      mark: '.',
+      decimals: 1
+    })
+  });
+  $('#frequencyLSlider').noUiSlider_pips({
+	  mode: 'steps',
+	  density: 3
+  });
+  $('#frequencyLSlider').on('slide', function(){
+    console.log($("#frequencyLSlider").val());
+    oscillatorL.frequency.value = $("#frequencyLSlider").val();
+  });
+  $("#frequencyLValue").change(function(event){
+    console.log($(event.target).val());
+    $('#frequencyLSlider').val($(event.target).val());
+    oscillatorL.frequency.value = $(event.target).val();
+  });
+  $("#frequencyLSlider").Link('lower').to($('#frequencyLValue'));
+
+  $('#shiftLSlider').noUiSlider({
+    start: 0,
+    connect: false,
+    direction: 'rtl',
+    orientation: "vertical",
+    range: {
+      'min': -1,
+      'max': 1
+    },
+    format: wNumb({
+      mark: '.',
+      decimals: 2
+    })
+  });
+  $('#shiftLSlider').noUiSlider_pips({
+	  mode: 'steps',
+	  density: 3
+  });
+  $('#shiftLSlider').on('slide', function(){
+    console.log($("#shiftLSlider").val());
+    setPhaseShift(oscillatorL,$("#shiftLSlider").val());
+  });
+  $("#shiftLValue").change(function(event){
+    console.log($(event.target).val());
+    $('#shiftLSlider').val($(event.target).val());
+    setPhaseShift(oscillatorL,$(event.target).val());
+  });
+  $("#shiftLSlider").Link('lower').to($('#shiftLValue'));
+
+
+  $("input[name=waveFormL]").click(function(event){
+    console.log($(event.target).val());
+    oscillatorL.type = $(event.target).val();
+  });
+
+
+  // setup input controls R
+  $('#gainRSlider').noUiSlider({
+    start: gainR.gain.value,
+    connect: "lower",
+    direction: 'rtl',
+    orientation: "vertical",
+    range: {
+      'min': 0,
+      'max': 1
+    },
+    format: wNumb({
+      mark: '.',
+      decimals: 2
+    })
+  });
+  $('#gainRSlider').noUiSlider_pips({
+	  mode: 'steps',
+	  density: 3
+  });
+  $('#gainRSlider').on('slide', function(){
+    console.log($("#gainRSlider").val());
+    gainR.gain.value = $("#gainRSlider").val();
+  });
+  $("#gainRValue").change(function(event){
+    console.log($(event.target).val());
+    $('#gainRSlider').val($(event.target).val());
+    gainR.gain.value = $(event.target).val();
+  });
+  $("#gainRSlider").Link('lower').to($('#gainRValue'));
+
+  $('#frequencyRSlider').noUiSlider({
+    start: oscillatorR.frequency.value,
+    connect: false,
+    direction: 'rtl',
+    orientation: "vertical",
+    range: {
+		  'min': [0],
+		  '30%': [1000],
+		  '70%': [5000],
+		  'max': [20000]
+	  },
+    format: wNumb({
+      mark: '.',
+      decimals: 1
+    })
+  });
+  $('#frequencyRSlider').noUiSlider_pips({
+	  mode: 'steps',
+	  density: 3
+  });
+  $('#frequencyRSlider').on('slide', function(){
+    console.log($("#frequencyRSlider").val());
+    oscillatorR.frequency.value = $("#frequencyRSlider").val();
+  });
+  $("#frequencyRValue").change(function(event){
+    console.log($(event.target).val());
+    $('#frequencyRSlider').val($(event.target).val());
+    oscillatorR.frequency.value = $(event.target).val();
+  });
+  $("#frequencyRSlider").Link('lower').to($('#frequencyRValue'));
+
+  $('#shiftRSlider').noUiSlider({
+    start: 0,
+    connect: false,
+    direction: 'rtl',
+    orientation: "vertical",
+    range: {
+      'min': -1,
+      'max': 1
+    },
+    format: wNumb({
+      mark: '.',
+      decimals: 2
+    })
+  });
+  $('#shiftRSlider').noUiSlider_pips({
+	  mode: 'steps',
+	  density: 3
+  });
+  $('#shiftRSlider').on('slide', function(){
+    console.log($("#shiftRSlider").val());
+    setPhaseShift(oscillatorR,$("#shiftRSlider").val());
+  });
+  $("#shiftRValue").change(function(event){
+    console.log($(event.target).val());
+    $('#shiftRSlider').val($(event.target).val());
+    setPhaseShift(oscillatorR,$(event.target).val());
+  });
+  $("#shiftRSlider").Link('lower').to($('#shiftRValue'));
+
+
+  $("input[name=waveFormR]").click(function(event){
+    console.log($(event.target).val());
+    oscillatorR.type = $(event.target).val();
+  });
+
+
+
+
+
+});
+
+function setPhaseShift(oscillatorNode, shiftValue){
+
+  var real = new Float32Array(2);
+  var imag = new Float32Array(2);
+  var a1 = 0.0;
+  var b1 = 1.0;
+
+  // Apply a simple rotation to the initial coefficients
+  var shift = 2 * Math.PI * shiftValue; // Shift the waveform 50%
+  real[1] = a1 * Math.cos(shift) - b1 * Math.sin(shift);
+  imag[1] = a1 * Math.sin(shift) + b1 * Math.cos(shift);
+
+  var wave = context.createPeriodicWave(real, imag);
+  oscillatorNode.setPeriodicWave(wave);
+}
+
+</script>
+
+</head>
+<body>
+  <div class="wrapper">
+    <div class="control">
+      <h1>Amplitude</h1>
+      <div id="gainLSlider"></div>
+      <input id="gainLValue" type="number" step="0.01" value="" />
+    </div>
+    <div class="control">
+      <h1>Frequency</h1>
+      <div id="frequencyLSlider"></div>
+      <input id="frequencyLValue" type="number" step="0.1" value="" />
+    </div>
+    <div class="control">
+      <h1>Phase Shift</h1>
+      <div id="shiftLSlider"></div>
+      <input id="shiftLValue" type="number" step="0.05" value="" />
+    </div>
+    <div class="control">
+      <button id="startL">Start</button>
+      <button id="stopL">Stop</button>
+    </div>
+    <div class="control">
+      <input type="radio" name="waveFormL" value="sine" checked="checked"> Sine<br>
+      <input type="radio" name="waveFormL" value="square"> Square<br>
+      <input type="radio" name="waveFormL" value="sawtooth"> Sawtooth<br>
+      <input type="radio" name="waveFormL" value="triangle"> Triangle<br>
+    </div>
+    <div style="clear:both;"></div>
+  </div>
+
+  <div class="wrapper">
+    <div class="control">
+      <h1>Amplitude</h1>
+      <div id="gainRSlider"></div>
+      <input id="gainRValue" type="number" step="0.01" value="" />
+    </div>
+    <div class="control">
+      <h1>Frequency</h1>
+      <div id="frequencyRSlider"></div>
+      <input id="frequencyRValue" type="number" step="0.1" value="" />
+    </div>
+    <div class="control">
+      <h1>Phase Shift</h1>
+      <div id="shiftRSlider"></div>
+      <input id="shiftRValue" type="number" step="0.05" value="" />
+    </div>
+    <div class="control">
+      <button id="startR">Start</button>
+      <button id="stopR">Stop</button>
+    </div>
+    <div class="control">
+      <input type="radio" name="waveFormR" value="sine" checked="checked"> Sine<br>
+      <input type="radio" name="waveFormR" value="square"> Square<br>
+      <input type="radio" name="waveFormR" value="sawtooth"> Sawtooth<br>
+      <input type="radio" name="waveFormR" value="triangle"> Triangle<br>
+    </div>
+    <div style="clear:both;"></div>
+  </div>
+</body>
+</html>

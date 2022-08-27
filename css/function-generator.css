@@ -1,0 +1,41 @@
+body{
+  background:#ccc;
+  margin:0;
+  padding:0;
+  font-family:sans-serif;
+  color:#aaa;
+  font-size:14px;
+}
+.wrapper{
+  margin:40px auto;
+  background:#fff;
+  border:1px solid #aaa;
+  width:504px;
+  height:auto;
+padding:20px;
+}
+#gainLSlider,#frequencyLSlider,#shiftLSlider,#gainRSlider,#frequencyRSlider,#shiftRSlider{
+  height:200px;
+}
+h1{
+  font-size:14px;
+  margin:0;
+  margin-bottom:10px;
+  padding:0;
+}
+.control{
+  float:left;
+  width:100px;
+  padding:10px;
+  margin:2px;
+  border:1px solid #ccc;
+}
+input[type=number]{
+  margin-top:18px;
+  display:block;
+  height:30px;
+  width:100%;
+  color:#aaa;
+  padding-left:5px;
+  box-sizing:border-box;
+}
